@@ -64,15 +64,19 @@ class DynamicProgramming
 
   def super_frog_hops(n, k)
     # debugger
-    return @super_frog_cache[n] unless @super_frog_cache[n].nil?
+    return @super_frog_cache[n] if @super_frog_cache[n]
+    
     result = []
     max_stairs = n > k ? k : n
-    (1..max_stairs - 1).each do |i|
+    (1..max_stairs).each do |i|
+      if n == i
+        result << [i]
+        break
+      end
       super_frog_hops(n - i, k).each do |hops|
         @super_frog_cache[i].each { |skops| result << hops + skops }
         result << hops + [i]
       end
-      result << [max_stairs]
     end
     @super_frog_cache[n] = result.uniq
   end
@@ -88,4 +92,24 @@ class DynamicProgramming
 
   def maze_solver(maze, start_pos, end_pos)
   end
+end
+
+if __FILE__ == $PROGRAM_NAME
+  dp = DynamicProgramming.new
+  intervals = dp.super_frog_hops(12, 15)
+  scales = intervals.map do |interval|
+    new_scale = [0]
+    interval.map do |int|
+      new_scale << new_scale[-1] + int
+    end
+    new_scale[0...-1]
+  end
+
+  (1..12).each do |i|
+    puts "length #{i}: #{scales.count { |scale| scale.length == i }}"
+  end
+
+  # puts scales.to_s
+  # puts dp.super_frog_hops(2,2).sort.to_s
+
 end
